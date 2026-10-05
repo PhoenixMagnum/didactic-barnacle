@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 
 import streamlit as st
 
@@ -9,6 +10,7 @@ from monakshi_os.muse import product_caption, product_description
 from monakshi_os.scoring import launch_gate, supplier_score, unit_economics
 from monakshi_os.scout import add_watch, check_watch
 from monakshi_os.seed import seed_demo
+from monakshi_os.state_io import export_state, import_state
 from monakshi_os.vault import ingest, search
 
 st.set_page_config(page_title="House of Monakshi OS", page_icon="🪔", layout="wide")
@@ -33,8 +35,26 @@ with tabs[0]:
     c4.metric("With blocker", blocked)
     st.progress(done / total if total else 0)
 
+    with st.expander("Private state import / export", expanded=False):
+        st.caption("Imports write only to your local SQLite database. Do not commit the generated database or private JSON to this public repository.")
+        state_file = st.file_uploader("Import Monakshi private state JSON", type=["json"], key="private_state_json")
+        if state_file and st.button("Import private state"):
+            payload = json.loads(state_file.getvalue().decode("utf-8"))
+            counts = import_state(payload)
+            st.success(
+                f"Imported {counts['launch_tasks']} tasks, {counts['suppliers']} suppliers and {counts['products']} products."
+            )
+            st.rerun()
+        snapshot = json.dumps(export_state(), ensure_ascii=False, indent=2, default=str)
+        st.download_button(
+            "Export local state backup",
+            data=snapshot,
+            file_name="monakshi_private_state_backup.json",
+            mime="application/json",
+        )
+
     st.subheader("Launch gates")
-    statuses = ["todo", "in_progress", "waiting", "founder_action", "done"]
+    statuses = ["todo", "in_progress", "waiting", "founder_action", "blocked", "done"]
     for t in tasks:
         cols = st.columns([1, 3, 1.3, 2])
         cols[0].write(t["area"])
