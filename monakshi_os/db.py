@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS suppliers (
     aesthetic_score REAL DEFAULT 0,
     commercial_score REAL DEFAULT 0,
     reliability_score REAL DEFAULT 0,
+    source_score REAL,
+    source_tier TEXT DEFAULT '',
     notes TEXT DEFAULT '',
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
@@ -82,13 +84,23 @@ CREATE TABLE IF NOT EXISTS watch_events (
 
 CREATE TABLE IF NOT EXISTS launch_tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_id TEXT,
     area TEXT NOT NULL,
     task TEXT NOT NULL,
     status TEXT DEFAULT 'todo',
     blocker TEXT DEFAULT '',
     owner TEXT DEFAULT 'Founder',
+    priority TEXT DEFAULT '',
+    due_gate TEXT DEFAULT '',
+    dependency TEXT DEFAULT '',
+    next_action TEXT DEFAULT '',
+    evidence TEXT DEFAULT '',
+    notes TEXT DEFAULT '',
     UNIQUE(area, task)
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_launch_tasks_source_id
+ON launch_tasks(source_id) WHERE source_id IS NOT NULL;
 """
 
 DEFAULT_TASKS = [
@@ -99,9 +111,24 @@ DEFAULT_TASKS = [
     ("Suppliers", "Lock supplier agreement and fulfilment annexure for launch suppliers"),
     ("Fulfilment", "Verify blind-shipping packout and tracking workflow"),
     ("Legal", "Finalize legal identity, policies, GST decision and trademark work"),
-    ("Marketing", "Publish first Instagram grid and 30-day pre-launch sequence"),
+    ("Marketing", "Publish first Instagram grid and 10-day pre-launch sequence"),
     ("Analytics", "Confirm launch analytics and conversion tracking"),
 ]
+
+SUPPLIER_MIGRATIONS = {
+    "source_score": "REAL",
+    "source_tier": "TEXT DEFAULT ''",
+}
+
+TASK_MIGRATIONS = {
+    "source_id": "TEXT",
+    "priority": "TEXT DEFAULT ''",
+    "due_gate": "TEXT DEFAULT ''",
+    "dependency": "TEXT DEFAULT ''",
+    "next_action": "TEXT DEFAULT ''",
+    "evidence": "TEXT DEFAULT ''",
+    "notes": "TEXT DEFAULT ''",
+}
 
 def connect(path: Path | str = DB_PATH) -> sqlite3.Connection:
     path = Path(path)
@@ -111,9 +138,21 @@ def connect(path: Path | str = DB_PATH) -> sqlite3.Connection:
     con.execute("PRAGMA foreign_keys = ON")
     return con
 
+def _ensure_columns(con: sqlite3.Connection, table: str, columns: dict[str, str]) -> None:
+    existing = {row["name"] for row in con.execute(f"PRAGMA table_info({table})").fetchall()}
+    for name, sql_type in columns.items():
+        if name not in existing:
+            con.execute(f"ALTER TABLE {table} ADD COLUMN {name} {sql_type}")
+
 def init_db(path: Path | str = DB_PATH) -> None:
     with connect(path) as con:
         con.executescript(SCHEMA)
+        _ensure_columns(con, "suppliers", SUPPLIER_MIGRATIONS)
+        _ensure_columns(con, "launch_tasks", TASK_MIGRATIONS)
+        con.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_launch_tasks_source_id "
+            "ON launch_tasks(source_id) WHERE source_id IS NOT NULL"
+        )
         con.executemany(
             "INSERT OR IGNORE INTO launch_tasks(area, task) VALUES (?, ?)", DEFAULT_TASKS
         )
