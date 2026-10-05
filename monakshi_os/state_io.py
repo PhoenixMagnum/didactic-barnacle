@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from .db import connect, init_db
+from .evidence import import_evidence, search_evidence
 
 STATUS_MAP = {
     "not started": "todo",
@@ -29,7 +30,7 @@ def load_payload(path: str | Path) -> dict[str, Any]:
 
 def import_state(payload: dict[str, Any], db_path="data/monakshi.db") -> dict[str, int]:
     init_db(db_path)
-    counts = {"suppliers": 0, "products": 0, "launch_tasks": 0}
+    counts = {"suppliers": 0, "products": 0, "launch_tasks": 0, "evidence": 0}
 
     with connect(db_path) as con:
         for s in payload.get("suppliers", []):
@@ -193,6 +194,7 @@ def import_state(payload: dict[str, Any], db_path="data/monakshi.db") -> dict[st
                 )
             counts["launch_tasks"] += 1
 
+    counts["evidence"] = import_evidence(payload.get("evidence", []), db_path)
     return counts
 
 def export_state(db_path="data/monakshi.db") -> dict[str, Any]:
@@ -208,8 +210,9 @@ def export_state(db_path="data/monakshi.db") -> dict[str, Any]:
         ]
         tasks = [dict(r) for r in con.execute("SELECT * FROM launch_tasks ORDER BY id")]
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "suppliers": suppliers,
         "products": products,
         "launch_tasks": tasks,
+        "evidence": search_evidence(db_path=db_path),
     }
