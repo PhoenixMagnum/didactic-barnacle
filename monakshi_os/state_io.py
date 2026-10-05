@@ -140,25 +140,39 @@ def import_state(payload: dict[str, Any], db_path="data/monakshi.db") -> dict[st
                 t.get("notes", ""),
             )
             if source_id:
-                con.execute(
-                    """INSERT INTO launch_tasks(
-                        source_id, area, task, status, blocker, owner, priority, due_gate,
-                        dependency, next_action, evidence, notes
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ON CONFLICT(source_id) DO UPDATE SET
-                        area=excluded.area,
-                        task=excluded.task,
-                        status=excluded.status,
-                        blocker=excluded.blocker,
-                        owner=excluded.owner,
-                        priority=excluded.priority,
-                        due_gate=excluded.due_gate,
-                        dependency=excluded.dependency,
-                        next_action=excluded.next_action,
-                        evidence=excluded.evidence,
-                        notes=excluded.notes""",
-                    params,
-                )
+                existing = con.execute(
+                    "SELECT id FROM launch_tasks WHERE source_id=?",
+                    (source_id,),
+                ).fetchone()
+                if existing:
+                    con.execute(
+                        """UPDATE launch_tasks SET
+                            area=?, task=?, status=?, blocker=?, owner=?, priority=?,
+                            due_gate=?, dependency=?, next_action=?, evidence=?, notes=?
+                           WHERE source_id=?""",
+                        (
+                            t.get("area", "General"),
+                            t["task"],
+                            status,
+                            blocker,
+                            t.get("owner", "Founder"),
+                            t.get("priority", ""),
+                            t.get("due_gate", ""),
+                            t.get("dependency", ""),
+                            t.get("next_action", ""),
+                            t.get("evidence", ""),
+                            t.get("notes", ""),
+                            source_id,
+                        ),
+                    )
+                else:
+                    con.execute(
+                        """INSERT INTO launch_tasks(
+                            source_id, area, task, status, blocker, owner, priority, due_gate,
+                            dependency, next_action, evidence, notes
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                        params,
+                    )
             else:
                 con.execute(
                     """INSERT INTO launch_tasks(
