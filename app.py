@@ -9,6 +9,7 @@ from monakshi_os.db import connect, init_db, rows
 from monakshi_os.evidence import entity_facts, search_evidence
 from monakshi_os.muse import product_caption, product_description
 from monakshi_os.scoring import launch_gate, supplier_score, unit_economics
+from monakshi_os.rehearsal import evaluate_launch, render_markdown
 from monakshi_os.scout import add_watch, check_watch
 from monakshi_os.seed import seed_demo
 from monakshi_os.state_io import export_state, import_state
@@ -35,6 +36,21 @@ with tabs[0]:
     c3.metric("Waiting", waiting)
     c4.metric("With blocker", blocked)
     st.progress(done / total if total else 0)
+
+    rehearsal = evaluate_launch()
+    if rehearsal["decision"] == "GO":
+        st.success("Launch firewall: GO")
+    else:
+        st.error(f"Launch firewall: NO-GO · {len(rehearsal['blocking_gates'])} hard gate(s) still open")
+        with st.expander("Show hard launch blockers"):
+            for gate in rehearsal["blocking_gates"]:
+                st.write(f"**{gate['key']} · {gate['label']}** — {gate['detail']}")
+    st.download_button(
+        "Download launch rehearsal report",
+        data=render_markdown(rehearsal),
+        file_name="house_of_monakshi_launch_rehearsal.md",
+        mime="text/markdown",
+    )
 
     with st.expander("Private state import / export", expanded=False):
         st.caption("Imports write only to your local SQLite database. Do not commit the generated database or private JSON to this public repository.")
