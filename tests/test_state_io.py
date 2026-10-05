@@ -50,7 +50,7 @@ def test_private_state_import_is_idempotent(tmp_path: Path):
     first = import_state(payload, db)
     second = import_state(payload, db)
 
-    assert first == {"suppliers": 1, "products": 1, "launch_tasks": 1}
+    assert first == {"suppliers": 1, "products": 1, "launch_tasks": 1, "evidence": 0}
     assert second == first
     assert len(rows("SELECT * FROM suppliers WHERE name=?", ("Private Demo Supplier",), db)) == 1
     assert len(rows("SELECT * FROM products WHERE name=?", ("Lotus Test",), db)) == 1
