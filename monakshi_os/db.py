@@ -48,6 +48,9 @@ CREATE TABLE IF NOT EXISTS products (
     FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE SET NULL
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_products_supplier_name
+ON products(supplier_id, name);
+
 CREATE TABLE IF NOT EXISTS documents (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     source_name TEXT NOT NULL,
