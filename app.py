@@ -6,6 +6,7 @@ import json
 import streamlit as st
 
 from monakshi_os.db import connect, init_db, rows
+from monakshi_os.evidence import entity_facts, search_evidence
 from monakshi_os.muse import product_caption, product_description
 from monakshi_os.scoring import launch_gate, supplier_score, unit_economics
 from monakshi_os.scout import add_watch, check_watch
@@ -19,7 +20,7 @@ init_db()
 st.title("House of Monakshi OS")
 st.caption("Operations brain for sourcing, qualification, launch gates and brand consistency. Keep confidential data local/private.")
 
-tabs = st.tabs(["Command Centre", "Suppliers", "Products", "Vault", "Watchtower", "Muse"])
+tabs = st.tabs(["Command Centre", "Suppliers", "Products", "Evidence", "Vault", "Watchtower", "Muse"])
 
 with tabs[0]:
     tasks = rows("SELECT * FROM launch_tasks ORDER BY area, id")
@@ -42,7 +43,7 @@ with tabs[0]:
             payload = json.loads(state_file.getvalue().decode("utf-8"))
             counts = import_state(payload)
             st.success(
-                f"Imported {counts['launch_tasks']} tasks, {counts['suppliers']} suppliers and {counts['products']} products."
+                f"Imported {counts['launch_tasks']} tasks, {counts['suppliers']} suppliers, {counts['products']} products and {counts.get('evidence', 0)} evidence records."
             )
             st.rerun()
         snapshot = json.dumps(export_state(), ensure_ascii=False, indent=2, default=str)
@@ -219,7 +220,40 @@ with tabs[2]:
             else:
                 st.warning("Not launch ready: " + ", ".join(missing))
 
+
 with tabs[3]:
+    st.subheader("Evidence ledger")
+    st.caption("Structured provenance for supplier, lab, website and operational claims. Keep raw private messages outside Git.")
+    eq = st.text_input("Search evidence", key="evidence_search")
+    supplier_names = [s["name"] for s in rows("SELECT name FROM suppliers ORDER BY name")]
+    entity_filter = st.selectbox("Filter entity", ["All"] + supplier_names, key="evidence_entity")
+    evidence_rows = search_evidence(
+        query=eq,
+        entity_name="" if entity_filter == "All" else entity_filter,
+    )
+    st.metric("Evidence records", len(evidence_rows))
+    for ev in evidence_rows:
+        with st.container(border=True):
+            st.markdown(f"**{ev['entity_name']}** · {ev['source_type']} · {ev['confidence']}")
+            if ev.get("subject"):
+                st.caption(ev["subject"])
+            st.write(ev["summary"])
+            facts = ev.get("facts", {})
+            if facts:
+                st.json(facts)
+            if ev.get("decision_impact"):
+                st.info("Decision impact: " + ev["decision_impact"])
+            source_bits = [x for x in [ev.get("source_label"), ev.get("occurred_at")] if x]
+            if source_bits:
+                st.caption(" · ".join(source_bits))
+
+    if entity_filter != "All":
+        facts = entity_facts(entity_filter)
+        if facts:
+            with st.expander("Consolidated fact history"):
+                st.json(facts)
+
+with tabs[4]:
     st.subheader("Supplier & product document vault")
     upload = st.file_uploader("Add a PDF, TXT, MD or CSV", type=["pdf", "txt", "md", "csv"])
     if upload and st.button("Ingest document"):
@@ -238,7 +272,7 @@ with tabs[3]:
             st.markdown(f"**{r['citation']}**")
             st.write(r["content"][:900])
 
-with tabs[4]:
+with tabs[5]:
     st.subheader("Supplier / competitor page watchtower")
     st.caption("Use only on pages you are allowed to access. This v1 checks public page text for change.")
     label = st.text_input("Watch label")
@@ -260,7 +294,7 @@ with tabs[4]:
             except Exception as exc:
                 st.error(str(exc))
 
-with tabs[5]:
+with tabs[6]:
     st.subheader("Monakshi Muse")
     name = st.text_input("Product name", key="muse_name")
     form = st.text_input("Form / inspiration", placeholder="lotus pond urli", key="muse_form")
