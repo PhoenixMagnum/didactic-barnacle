@@ -82,6 +82,26 @@ CREATE TABLE IF NOT EXISTS watch_events (
     FOREIGN KEY (watch_id) REFERENCES watches(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS evidence_records (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    external_id TEXT UNIQUE,
+    entity_type TEXT NOT NULL,
+    entity_name TEXT NOT NULL,
+    source_type TEXT NOT NULL,
+    source_label TEXT DEFAULT '',
+    source_ref TEXT DEFAULT '',
+    occurred_at TEXT DEFAULT '',
+    subject TEXT DEFAULT '',
+    summary TEXT NOT NULL,
+    facts_json TEXT DEFAULT '{}',
+    decision_impact TEXT DEFAULT '',
+    confidence TEXT DEFAULT 'direct',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_evidence_entity
+ON evidence_records(entity_type, entity_name);
+
 CREATE TABLE IF NOT EXISTS launch_tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     source_id TEXT,
