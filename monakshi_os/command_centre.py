@@ -37,39 +37,40 @@ def _upsert_task(row: dict[str, str], db_path: str) -> None:
     source_id = row.get("ID", "")
     if not source_id:
         return
+    values = (
+        row.get("Track", "General") or "General",
+        row.get("Task", ""),
+        normalize_status(row.get("Status", "")),
+        "",
+        row.get("Owner", "Founder") or "Founder",
+        row.get("Priority", ""),
+        row.get("Due / Gate", ""),
+        row.get("Dependency", ""),
+        row.get("Next Action", ""),
+        row.get("Evidence / Output", ""),
+        row.get("Notes", ""),
+    )
     with connect(db_path) as con:
-        con.execute(
-            """INSERT INTO launch_tasks(
-                source_id, area, task, status, blocker, owner, priority, due_gate,
-                dependency, next_action, evidence, notes
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(source_id) DO UPDATE SET
-                area=excluded.area,
-                task=excluded.task,
-                status=excluded.status,
-                blocker=excluded.blocker,
-                owner=excluded.owner,
-                priority=excluded.priority,
-                due_gate=excluded.due_gate,
-                dependency=excluded.dependency,
-                next_action=excluded.next_action,
-                evidence=excluded.evidence,
-                notes=excluded.notes""",
-            (
-                source_id,
-                row.get("Track", "General") or "General",
-                row.get("Task", ""),
-                normalize_status(row.get("Status", "")),
-                "",
-                row.get("Owner", "Founder") or "Founder",
-                row.get("Priority", ""),
-                row.get("Due / Gate", ""),
-                row.get("Dependency", ""),
-                row.get("Next Action", ""),
-                row.get("Evidence / Output", ""),
-                row.get("Notes", ""),
-            ),
-        )
+        existing = con.execute(
+            "SELECT id FROM launch_tasks WHERE source_id=?",
+            (source_id,),
+        ).fetchone()
+        if existing:
+            con.execute(
+                """UPDATE launch_tasks SET
+                    area=?, task=?, status=?, blocker=?, owner=?, priority=?,
+                    due_gate=?, dependency=?, next_action=?, evidence=?, notes=?
+                   WHERE source_id=?""",
+                (*values, source_id),
+            )
+        else:
+            con.execute(
+                """INSERT INTO launch_tasks(
+                    source_id, area, task, status, blocker, owner, priority, due_gate,
+                    dependency, next_action, evidence, notes
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (source_id, *values),
+            )
 
 
 def _dashboard_decisions(rows: list[list[Any]], source_id: str, effective_date: str) -> list[dict[str, Any]]:
