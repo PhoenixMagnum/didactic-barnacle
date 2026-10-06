@@ -134,6 +134,24 @@ CREATE TABLE IF NOT EXISTS evidence_records (
 CREATE INDEX IF NOT EXISTS idx_evidence_entity
 ON evidence_records(entity_type, entity_name);
 
+CREATE TABLE IF NOT EXISTS ingestion_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    external_id TEXT NOT NULL UNIQUE,
+    source_system TEXT NOT NULL,
+    entity_name TEXT DEFAULT '',
+    artifact_type TEXT DEFAULT 'record',
+    content_sha256 TEXT DEFAULT '',
+    source_ref_sha256 TEXT DEFAULT '',
+    redacted_label TEXT DEFAULT '',
+    occurred_at TEXT DEFAULT '',
+    status TEXT DEFAULT 'imported',
+    notes TEXT DEFAULT '',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_ingestion_log_hash
+ON ingestion_log(source_system, entity_name, content_sha256);
+
 CREATE TABLE IF NOT EXISTS source_registry (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     source_id TEXT NOT NULL UNIQUE,
