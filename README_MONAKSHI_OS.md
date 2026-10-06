@@ -18,6 +18,8 @@ Read:
 - [Operating System](docs/MONAKSHI_OPERATING_SYSTEM.md) — complete workstream architecture
 - [Source of Truth](docs/SOURCE_OF_TRUTH.md) — authority and context-hygiene rules
 - [Workstream Map](docs/WORKSTREAMS.md) — public-safe launch map
+- [Instagram + WhatsApp Supplier Bridge](docs/SOCIAL_SUPPLIER_BRIDGE.md) — multichannel identity and evidence rules
+- [Evidence Ledger](docs/EVIDENCE_LEDGER.md) — provenance and conflict-preserving evidence
 - [Private State Example](templates/private_state.example.json) — structure for local/private operating state
 
 ## Patterns adapted from Arindam200/awesome-ai-apps
@@ -39,6 +41,9 @@ Monakshi borrows selected patterns rather than cloning the full repository:
 
 - launch command centre with explicit gates and blockers
 - supplier scoring built around Monakshi's actual operating model
+- one supplier identity across Instagram, WhatsApp, email, phone and website aliases
+- structured evidence ledger with dated claims and source references
+- stale-channel re-verification flags
 - product unit economics and hard launch-readiness gates
 - local document vault for supplier catalogues, terms and research
 - supplier/competitor URL watchlist with change detection
