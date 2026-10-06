@@ -1,6 +1,12 @@
 name: Refresh repository intelligence cache
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "repository-cache/repos.json"
+      - "repository-cache/scripts/refresh.py"
+      - ".github/workflows/repository-cache-refresh.yml"
   schedule:
     - cron: "23 3 * * 1"
   workflow_dispatch:
