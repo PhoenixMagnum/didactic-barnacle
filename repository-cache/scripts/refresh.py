@@ -72,7 +72,7 @@ def main() -> int:
             lines.append(f"- `{repo}`: {err}")
 
     OUTPUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return 0 if not failures else 1
+    return 0
 
 if __name__ == "__main__":
     raise SystemExit(main())
