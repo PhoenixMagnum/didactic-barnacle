@@ -1,0 +1,954 @@
+{
+  "schema_version": 1,
+  "purpose": "Stack-aware repository intelligence cache for PhoenixMagnum projects.",
+  "priority_legend": {
+    "P0": "core-now",
+    "P1": "strong-next",
+    "P2": "reference-future",
+    "P3": "watch-experimental"
+  },
+  "stacks": [
+    {
+      "id": "S0",
+      "name": "Repository intelligence",
+      "status": "ACTIVE",
+      "members": [
+        "Arindam200/awesome-ai-apps",
+        "f/prompts.chat",
+        "mattpocock/skills",
+        "mcp-finder/awesome-mcp-servers",
+        "ripienaar/free-for-dev"
+      ],
+      "rule": "Discovery feeds the cache. It does not automatically change production architecture."
+    },
+    {
+      "id": "S1",
+      "name": "Monakshi independent storefront",
+      "status": "ACTIVE",
+      "members": [
+        "vercel/next.js",
+        "tailwindlabs/tailwindcss",
+        "shadcn-ui/ui",
+        "GrapesJS/grapesjs",
+        "supabase/supabase",
+        "razorpay/razorpay-node",
+        "resend/react-email",
+        "resend/resend-node"
+      ],
+      "rule": "This is the controlling web stack. Commerce reference repos are reference-only unless a concrete gap appears."
+    },
+    {
+      "id": "S2",
+      "name": "Monakshi operations + automation",
+      "status": "ACTIVE",
+      "members": [
+        "ComposioHQ/composio",
+        "n8n-io/n8n",
+        "microsoft/playwright",
+        "dgtlmoon/changedetection.io",
+        "firecrawl/firecrawl",
+        "twentyhq/twenty",
+        "listmonk/listmonk",
+        "PostHog/posthog"
+      ],
+      "rule": "Prefer existing ChatGPT connectors first; add self-hosted automation only when it removes recurring manual work or creates a durable audit trail."
+    },
+    {
+      "id": "S3",
+      "name": "StoryVault writing + publishing",
+      "status": "ACTIVE_CONSERVATIVE",
+      "members": [
+        "jgm/pandoc",
+        "microsoft/markitdown",
+        "languagetool-org/languagetool",
+        "Sigil-Ebook/Sigil",
+        "kovidgoyal/calibre",
+        "kevboh/longform",
+        "obsidianmd/obsidian-api"
+      ],
+      "rule": "Obsidian/StoryVault remains local-first, deterministic and dependency-light. Longform is optional; external memory and agent swarms never become canon authorities."
+    },
+    {
+      "id": "S4",
+      "name": "Research + knowledge processing",
+      "status": "READY_WHEN_NEEDED",
+      "members": [
+        "zotero/zotero",
+        "microsoft/markitdown",
+        "docling-project/docling",
+        "paperless-ngx/paperless-ngx",
+        "infiniflow/ragflow",
+        "onyx-dot-app/onyx",
+        "khoj-ai/khoj"
+      ],
+      "rule": "Evidence and source provenance outrank convenience. RAG layers are optional accelerators, not sources of truth."
+    },
+    {
+      "id": "S5",
+      "name": "ChatGPT / agent engineering lab",
+      "status": "REFERENCE_FIRST",
+      "members": [
+        "openai/openai-cookbook",
+        "openai/codex",
+        "ComposioHQ/composio",
+        "modelcontextprotocol/servers",
+        "langchain-ai/langgraph",
+        "langfuse/langfuse",
+        "BerriAI/litellm",
+        "topoteretes/cognee",
+        "mem0ai/mem0"
+      ],
+      "rule": "Use this stack to prototype bounded agents and integrations. Do not import experimental autonomy into StoryVault canon or Monakshi production without an explicit use case."
+    },
+    {
+      "id": "S6",
+      "name": "Learning + future infrastructure",
+      "status": "LIBRARY",
+      "members": [
+        "sindresorhus/awesome",
+        "awesome-selfhosted/awesome-selfhosted",
+        "public-apis/public-apis",
+        "ripienaar/free-for-dev",
+        "EbookFoundation/free-programming-books",
+        "metabase/metabase",
+        "nocodb/nocodb",
+        "makeplane/plane"
+      ],
+      "rule": "Reference shelf only until a concrete requirement promotes an item into another stack."
+    }
+  ],
+  "repositories": [
+    {
+      "repo": "Arindam200/awesome-ai-apps",
+      "category": "discovery",
+      "priority": "P0",
+      "stacks": [
+        "S0",
+        "S1",
+        "S5"
+      ],
+      "note": "Pattern library already selected for Monakshi and AI workflow design."
+    },
+    {
+      "repo": "f/prompts.chat",
+      "category": "discovery",
+      "priority": "P0",
+      "stacks": [
+        "S0",
+        "S5"
+      ],
+      "note": "Reusable prompt organization; already referenced by Monakshi."
+    },
+    {
+      "repo": "mattpocock/skills",
+      "category": "discovery",
+      "priority": "P1",
+      "stacks": [
+        "S5",
+        "S6"
+      ],
+      "note": "Composable agent skills; useful for disciplined repo work without surrendering control."
+    },
+    {
+      "repo": "mcp-finder/awesome-mcp-servers",
+      "category": "discovery",
+      "priority": "P1",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Curated MCP server directory with reliability signals."
+    },
+    {
+      "repo": "Christian-Sidak/awesome-mcp-tools",
+      "category": "discovery",
+      "priority": "P2",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Broader MCP tools/SDK/reference index."
+    },
+    {
+      "repo": "sindresorhus/awesome",
+      "category": "discovery",
+      "priority": "P2",
+      "stacks": [
+        "S6"
+      ],
+      "note": "Meta-index of curated awesome lists."
+    },
+    {
+      "repo": "awesome-selfhosted/awesome-selfhosted",
+      "category": "discovery",
+      "priority": "P2",
+      "stacks": [
+        "S6"
+      ],
+      "note": "Self-hosted software discovery index."
+    },
+    {
+      "repo": "public-apis/public-apis",
+      "category": "discovery",
+      "priority": "P2",
+      "stacks": [
+        "S6"
+      ],
+      "note": "Public API catalog for prototypes and integrations."
+    },
+    {
+      "repo": "ripienaar/free-for-dev",
+      "category": "discovery",
+      "priority": "P1",
+      "stacks": [
+        "S6"
+      ],
+      "note": "Free service tiers and developer resources; useful for low-cost experimentation."
+    },
+    {
+      "repo": "EbookFoundation/free-programming-books",
+      "category": "learning",
+      "priority": "P2",
+      "stacks": [
+        "S6"
+      ],
+      "note": "Reference library for learning and future technical depth."
+    },
+    {
+      "repo": "openai/openai-cookbook",
+      "category": "agent-platform",
+      "priority": "P0",
+      "stacks": [
+        "S5",
+        "S6"
+      ],
+      "note": "Practical OpenAI patterns and examples."
+    },
+    {
+      "repo": "openai/codex",
+      "category": "agent-platform",
+      "priority": "P1",
+      "stacks": [
+        "S5",
+        "S6"
+      ],
+      "note": "Coding-agent reference and implementation patterns."
+    },
+    {
+      "repo": "vercel/ai",
+      "category": "agent-platform",
+      "priority": "P1",
+      "stacks": [
+        "S1",
+        "S5"
+      ],
+      "note": "AI SDK for TypeScript/Next.js, especially useful if Monakshi gains AI features."
+    },
+    {
+      "repo": "ComposioHQ/composio",
+      "category": "agent-platform",
+      "priority": "P0",
+      "stacks": [
+        "S2",
+        "S5"
+      ],
+      "note": "Cross-app tool integration layer; already aligned with Monakshi automation."
+    },
+    {
+      "repo": "modelcontextprotocol/servers",
+      "category": "mcp",
+      "priority": "P1",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Reference MCP server implementations and patterns."
+    },
+    {
+      "repo": "modelcontextprotocol/python-sdk",
+      "category": "mcp",
+      "priority": "P2",
+      "stacks": [
+        "S5",
+        "S6"
+      ],
+      "note": "Official Python MCP SDK for custom bridges."
+    },
+    {
+      "repo": "modelcontextprotocol/typescript-sdk",
+      "category": "mcp",
+      "priority": "P2",
+      "stacks": [
+        "S5",
+        "S6"
+      ],
+      "note": "Official TypeScript MCP SDK for custom bridges."
+    },
+    {
+      "repo": "langchain-ai/langgraph",
+      "category": "agent-platform",
+      "priority": "P2",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Graph-based agent orchestration; useful when deterministic workflows outgrow simple tools."
+    },
+    {
+      "repo": "langchain-ai/langchain",
+      "category": "agent-platform",
+      "priority": "P2",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Large integration ecosystem; reference before adding framework weight."
+    },
+    {
+      "repo": "run-llama/llama_index",
+      "category": "agent-platform",
+      "priority": "P2",
+      "stacks": [
+        "S4",
+        "S5"
+      ],
+      "note": "Knowledge/RAG framework; reference for retrieval-heavy systems."
+    },
+    {
+      "repo": "pydantic/pydantic-ai",
+      "category": "agent-platform",
+      "priority": "P2",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Typed Python agent framework with strong schema discipline."
+    },
+    {
+      "repo": "BerriAI/litellm",
+      "category": "agent-platform",
+      "priority": "P2",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Multi-model gateway and routing layer."
+    },
+    {
+      "repo": "langfuse/langfuse",
+      "category": "observability",
+      "priority": "P1",
+      "stacks": [
+        "S5"
+      ],
+      "note": "LLM traces, evaluation and prompt observability."
+    },
+    {
+      "repo": "langgenius/dify",
+      "category": "agent-platform",
+      "priority": "P3",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Full AI application platform; powerful but heavier than current needs."
+    },
+    {
+      "repo": "microsoft/semantic-kernel",
+      "category": "agent-platform",
+      "priority": "P3",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Enterprise orchestration reference."
+    },
+    {
+      "repo": "microsoft/autogen",
+      "category": "agent-platform",
+      "priority": "P3",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Multi-agent research/reference; not for StoryVault core."
+    },
+    {
+      "repo": "crewAIInc/crewAI",
+      "category": "agent-platform",
+      "priority": "P3",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Agent-team framework; watch/reference, not default architecture."
+    },
+    {
+      "repo": "topoteretes/cognee",
+      "category": "memory-rag",
+      "priority": "P2",
+      "stacks": [
+        "S4",
+        "S5"
+      ],
+      "note": "Knowledge/memory layer; evaluate for evidence-bound research, not autonomous canon."
+    },
+    {
+      "repo": "mem0ai/mem0",
+      "category": "memory-rag",
+      "priority": "P2",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Agent memory patterns; experimental for general assistants, excluded from deterministic StoryVault core."
+    },
+    {
+      "repo": "matrixorigin/memoria",
+      "category": "memory-rag",
+      "priority": "P3",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Versioned agent memory concept; promising watchlist item."
+    },
+    {
+      "repo": "infiniflow/ragflow",
+      "category": "memory-rag",
+      "priority": "P2",
+      "stacks": [
+        "S4"
+      ],
+      "note": "RAG/document workflow platform for future research corpora."
+    },
+    {
+      "repo": "onyx-dot-app/onyx",
+      "category": "memory-rag",
+      "priority": "P2",
+      "stacks": [
+        "S4"
+      ],
+      "note": "Search/knowledge assistant architecture for connected documents."
+    },
+    {
+      "repo": "khoj-ai/khoj",
+      "category": "memory-rag",
+      "priority": "P2",
+      "stacks": [
+        "S4"
+      ],
+      "note": "Personal knowledge assistant reference, especially for local/private knowledge."
+    },
+    {
+      "repo": "n8n-io/n8n",
+      "category": "automation",
+      "priority": "P0",
+      "stacks": [
+        "S2",
+        "S6"
+      ],
+      "note": "Primary open workflow automation reference."
+    },
+    {
+      "repo": "activepieces/activepieces",
+      "category": "automation",
+      "priority": "P1",
+      "stacks": [
+        "S2"
+      ],
+      "note": "Alternative automation engine with strong connector coverage."
+    },
+    {
+      "repo": "triggerdotdev/trigger.dev",
+      "category": "automation",
+      "priority": "P1",
+      "stacks": [
+        "S1",
+        "S2"
+      ],
+      "note": "Reliable background jobs for app-triggered workflows."
+    },
+    {
+      "repo": "windmill-labs/windmill",
+      "category": "automation",
+      "priority": "P2",
+      "stacks": [
+        "S2"
+      ],
+      "note": "Developer-centric scripts/workflows/jobs platform."
+    },
+    {
+      "repo": "huginn/huginn",
+      "category": "automation",
+      "priority": "P2",
+      "stacks": [
+        "S2"
+      ],
+      "note": "Long-running web/event agents; useful reference for monitoring patterns."
+    },
+    {
+      "repo": "automatisch/automatisch",
+      "category": "automation",
+      "priority": "P2",
+      "stacks": [
+        "S2"
+      ],
+      "note": "Open-source Zapier-style automation reference."
+    },
+    {
+      "repo": "browser-use/browser-use",
+      "category": "browser-research",
+      "priority": "P1",
+      "stacks": [
+        "S2",
+        "S5"
+      ],
+      "note": "Browser-agent patterns; useful alongside TinyFish for engineering/reference."
+    },
+    {
+      "repo": "microsoft/playwright",
+      "category": "browser-research",
+      "priority": "P0",
+      "stacks": [
+        "S2",
+        "S6"
+      ],
+      "note": "Deterministic browser automation foundation."
+    },
+    {
+      "repo": "firecrawl/firecrawl",
+      "category": "browser-research",
+      "priority": "P1",
+      "stacks": [
+        "S2",
+        "S4"
+      ],
+      "note": "Web-to-LLM extraction/crawling patterns."
+    },
+    {
+      "repo": "unclecode/crawl4ai",
+      "category": "browser-research",
+      "priority": "P1",
+      "stacks": [
+        "S2",
+        "S4"
+      ],
+      "note": "LLM-friendly crawling and extraction."
+    },
+    {
+      "repo": "apify/crawlee",
+      "category": "browser-research",
+      "priority": "P2",
+      "stacks": [
+        "S2"
+      ],
+      "note": "Production-grade crawling toolkit."
+    },
+    {
+      "repo": "dgtlmoon/changedetection.io",
+      "category": "monitoring",
+      "priority": "P1",
+      "stacks": [
+        "S2"
+      ],
+      "note": "Price/stock/page-change monitoring foundation."
+    },
+    {
+      "repo": "RSSHub/RSSHub",
+      "category": "monitoring",
+      "priority": "P2",
+      "stacks": [
+        "S2",
+        "S4"
+      ],
+      "note": "Turn many sources into feeds for monitoring pipelines."
+    },
+    {
+      "repo": "steerlabs/opensteer",
+      "category": "browser-research",
+      "priority": "P3",
+      "stacks": [
+        "S5"
+      ],
+      "note": "New browser-agent control framework; watch rather than adopt."
+    },
+    {
+      "repo": "uiuing/browser-agent",
+      "category": "browser-research",
+      "priority": "P3",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Browser extension/runtime with verification and guardrails; watchlist."
+    },
+    {
+      "repo": "browserable/browserable",
+      "category": "browser-research",
+      "priority": "P3",
+      "stacks": [
+        "S5"
+      ],
+      "note": "Self-hostable AI browser automation; watchlist."
+    },
+    {
+      "repo": "vercel/next.js",
+      "category": "monakshi-web",
+      "priority": "P0",
+      "stacks": [
+        "S1"
+      ],
+      "note": "Current independent storefront framework."
+    },
+    {
+      "repo": "tailwindlabs/tailwindcss",
+      "category": "monakshi-web",
+      "priority": "P0",
+      "stacks": [
+        "S1"
+      ],
+      "note": "Current styling foundation."
+    },
+    {
+      "repo": "shadcn-ui/ui",
+      "category": "monakshi-web",
+      "priority": "P0",
+      "stacks": [
+        "S1"
+      ],
+      "note": "Accessible component patterns without surrendering Monakshi aesthetics."
+    },
+    {
+      "repo": "GrapesJS/grapesjs",
+      "category": "monakshi-web",
+      "priority": "P0",
+      "stacks": [
+        "S1"
+      ],
+      "note": "Current visual studio/editor foundation."
+    },
+    {
+      "repo": "supabase/supabase",
+      "category": "monakshi-data",
+      "priority": "P0",
+      "stacks": [
+        "S1",
+        "S2"
+      ],
+      "note": "Planned Postgres/auth/storage backbone."
+    },
+    {
+      "repo": "razorpay/razorpay-node",
+      "category": "monakshi-payments",
+      "priority": "P0",
+      "stacks": [
+        "S1"
+      ],
+      "note": "India-first payment integration for the independent store."
+    },
+    {
+      "repo": "resend/react-email",
+      "category": "monakshi-email",
+      "priority": "P0",
+      "stacks": [
+        "S1"
+      ],
+      "note": "Transactional email templates."
+    },
+    {
+      "repo": "resend/resend-node",
+      "category": "monakshi-email",
+      "priority": "P0",
+      "stacks": [
+        "S1"
+      ],
+      "note": "Transactional email delivery SDK."
+    },
+    {
+      "repo": "PostHog/posthog",
+      "category": "analytics",
+      "priority": "P1",
+      "stacks": [
+        "S1",
+        "S2"
+      ],
+      "note": "Product analytics, funnels and experiments if Monakshi needs deeper instrumentation."
+    },
+    {
+      "repo": "umami-software/umami",
+      "category": "analytics",
+      "priority": "P2",
+      "stacks": [
+        "S1"
+      ],
+      "note": "Lightweight privacy-conscious web analytics alternative."
+    },
+    {
+      "repo": "twentyhq/twenty",
+      "category": "crm",
+      "priority": "P1",
+      "stacks": [
+        "S2"
+      ],
+      "note": "Modern open-source CRM candidate for future customer/supplier relationship management."
+    },
+    {
+      "repo": "listmonk/listmonk",
+      "category": "marketing",
+      "priority": "P1",
+      "stacks": [
+        "S2"
+      ],
+      "note": "High-performance newsletters and mailing lists."
+    },
+    {
+      "repo": "dubinc/dub",
+      "category": "marketing",
+      "priority": "P2",
+      "stacks": [
+        "S2"
+      ],
+      "note": "Links, attribution and campaign tracking patterns."
+    },
+    {
+      "repo": "novuhq/novu",
+      "category": "notifications",
+      "priority": "P2",
+      "stacks": [
+        "S1",
+        "S2"
+      ],
+      "note": "Notification infrastructure for multi-channel customer events."
+    },
+    {
+      "repo": "vercel/commerce",
+      "category": "ecommerce-reference",
+      "priority": "P2",
+      "stacks": [
+        "S1"
+      ],
+      "note": "Next.js commerce architecture reference."
+    },
+    {
+      "repo": "medusajs/medusa",
+      "category": "ecommerce-reference",
+      "priority": "P2",
+      "stacks": [
+        "S1"
+      ],
+      "note": "Composable commerce backend reference if custom storefront scope expands."
+    },
+    {
+      "repo": "saleor/saleor",
+      "category": "ecommerce-reference",
+      "priority": "P2",
+      "stacks": [
+        "S1"
+      ],
+      "note": "Headless commerce reference for larger-scale architecture."
+    },
+    {
+      "repo": "makeplane/plane",
+      "category": "operations",
+      "priority": "P2",
+      "stacks": [
+        "S2",
+        "S6"
+      ],
+      "note": "Open project/work management reference."
+    },
+    {
+      "repo": "outline/outline",
+      "category": "knowledge",
+      "priority": "P2",
+      "stacks": [
+        "S4",
+        "S6"
+      ],
+      "note": "Team knowledge-base reference."
+    },
+    {
+      "repo": "metabase/metabase",
+      "category": "analytics",
+      "priority": "P2",
+      "stacks": [
+        "S2",
+        "S6"
+      ],
+      "note": "Business intelligence dashboards over operational databases."
+    },
+    {
+      "repo": "nocodb/nocodb",
+      "category": "operations",
+      "priority": "P2",
+      "stacks": [
+        "S2",
+        "S6"
+      ],
+      "note": "Spreadsheet-like interface over databases for operational tooling."
+    },
+    {
+      "repo": "remotion-dev/remotion",
+      "category": "content",
+      "priority": "P2",
+      "stacks": [
+        "S3"
+      ],
+      "note": "Programmatic social/video generation for future content workflows."
+    },
+    {
+      "repo": "jgm/pandoc",
+      "category": "writing-publishing",
+      "priority": "P0",
+      "stacks": [
+        "S3",
+        "S4"
+      ],
+      "note": "Deterministic Markdown/document conversion and publishing backbone."
+    },
+    {
+      "repo": "microsoft/markitdown",
+      "category": "documents",
+      "priority": "P0",
+      "stacks": [
+        "S3",
+        "S4"
+      ],
+      "note": "Convert common office/document formats into Markdown for analysis."
+    },
+    {
+      "repo": "docling-project/docling",
+      "category": "documents",
+      "priority": "P1",
+      "stacks": [
+        "S4"
+      ],
+      "note": "Rich document extraction and structure recovery."
+    },
+    {
+      "repo": "Stirling-Tools/Stirling-PDF",
+      "category": "documents",
+      "priority": "P1",
+      "stacks": [
+        "S4",
+        "S6"
+      ],
+      "note": "Practical local PDF manipulation toolkit."
+    },
+    {
+      "repo": "zotero/zotero",
+      "category": "research",
+      "priority": "P1",
+      "stacks": [
+        "S4"
+      ],
+      "note": "Research source and citation management."
+    },
+    {
+      "repo": "Zettlr/Zettlr",
+      "category": "writing-publishing",
+      "priority": "P2",
+      "stacks": [
+        "S3"
+      ],
+      "note": "Markdown authoring and academic publishing reference."
+    },
+    {
+      "repo": "olivierkes/manuskript",
+      "category": "writing-publishing",
+      "priority": "P2",
+      "stacks": [
+        "S3"
+      ],
+      "note": "Novel planning/writing reference."
+    },
+    {
+      "repo": "vkbo/novelWriter",
+      "category": "writing-publishing",
+      "priority": "P2",
+      "stacks": [
+        "S3"
+      ],
+      "note": "Long-form novel writing and project organization reference."
+    },
+    {
+      "repo": "kevboh/longform",
+      "category": "obsidian",
+      "priority": "P2",
+      "stacks": [
+        "S3"
+      ],
+      "note": "Optional Obsidian long-form plugin; explicitly not foundational to StoryVault."
+    },
+    {
+      "repo": "languagetool-org/languagetool",
+      "category": "writing-publishing",
+      "priority": "P1",
+      "stacks": [
+        "S3"
+      ],
+      "note": "Grammar/style checking engine."
+    },
+    {
+      "repo": "Sigil-Ebook/Sigil",
+      "category": "publishing",
+      "priority": "P1",
+      "stacks": [
+        "S3"
+      ],
+      "note": "EPUB editing and quality-control tool."
+    },
+    {
+      "repo": "kovidgoyal/calibre",
+      "category": "publishing",
+      "priority": "P1",
+      "stacks": [
+        "S3"
+      ],
+      "note": "Ebook conversion/library tooling."
+    },
+    {
+      "repo": "standardebooks/tools",
+      "category": "publishing",
+      "priority": "P2",
+      "stacks": [
+        "S3"
+      ],
+      "note": "High-quality EPUB production and validation patterns."
+    },
+    {
+      "repo": "paperless-ngx/paperless-ngx",
+      "category": "knowledge",
+      "priority": "P2",
+      "stacks": [
+        "S4"
+      ],
+      "note": "Document archive/search platform for large personal/business corpora."
+    },
+    {
+      "repo": "logseq/logseq",
+      "category": "knowledge",
+      "priority": "P2",
+      "stacks": [
+        "S4"
+      ],
+      "note": "Local knowledge graph reference; do not replace the existing Obsidian foundation."
+    },
+    {
+      "repo": "johackim/obsidian-writing",
+      "category": "obsidian",
+      "priority": "P3",
+      "stacks": [
+        "S3"
+      ],
+      "note": "Book-writing plugin ideas; watch/reference only."
+    },
+    {
+      "repo": "obsidianmd/obsidian-api",
+      "category": "obsidian",
+      "priority": "P2",
+      "stacks": [
+        "S3",
+        "S6"
+      ],
+      "note": "Official Obsidian plugin API reference for future custom StoryVault integration."
+    },
+    {
+      "repo": "obsidianmd/obsidian-sample-plugin",
+      "category": "obsidian",
+      "priority": "P2",
+      "stacks": [
+        "S3",
+        "S6"
+      ],
+      "note": "Official starter reference for custom Obsidian plugins."
+    }
+  ]
+}
