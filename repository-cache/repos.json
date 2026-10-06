@@ -17,7 +17,7 @@
         "f/prompts.chat",
         "mattpocock/skills",
         "mcp-finder/awesome-mcp-servers",
-        "free-for-dev/free-for-dev"
+        "ripienaar/free-for-dev"
       ],
       "rule": "Discovery feeds the cache. It does not automatically change production architecture."
     },
@@ -108,7 +108,7 @@
         "sindresorhus/awesome",
         "awesome-selfhosted/awesome-selfhosted",
         "public-apis/public-apis",
-        "free-for-dev/free-for-dev",
+        "ripienaar/free-for-dev",
         "EbookFoundation/free-programming-books",
         "metabase/metabase",
         "nocodb/nocodb",
@@ -195,7 +195,7 @@
       "note": "Public API catalog for prototypes and integrations."
     },
     {
-      "repo": "free-for-dev/free-for-dev",
+      "repo": "ripienaar/free-for-dev",
       "category": "discovery",
       "priority": "P1",
       "stacks": [
@@ -392,7 +392,7 @@
       "note": "Agent memory patterns; experimental for general assistants, excluded from deterministic StoryVault core."
     },
     {
-      "repo": "matrixorigin/Memoria",
+      "repo": "matrixorigin/memoria",
       "category": "memory-rag",
       "priority": "P3",
       "stacks": [
