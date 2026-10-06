@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "rule": "Scheduled discovery only. Results never become dependencies automatically.",
+  "needs": [
+    {
+      "id": "monakshi-storefront",
+      "stack": "S1",
+      "query": "Next.js ecommerce storefront headless commerce stars:>500",
+      "limit": 8
+    },
+    {
+      "id": "monakshi-payments-india",
+      "stack": "S1",
+      "query": "Razorpay payments India Node.js ecommerce stars:>100",
+      "limit": 8
+    },
+    {
+      "id": "monakshi-transactional-email",
+      "stack": "S1",
+      "query": "transactional email React Next.js open source stars:>500",
+      "limit": 8
+    },
+    {
+      "id": "monakshi-analytics",
+      "stack": "S1",
+      "query": "open source web analytics product analytics stars:>1000",
+      "limit": 8
+    },
+    {
+      "id": "monakshi-crm-ops",
+      "stack": "S2",
+      "query": "open source CRM customer relationship management stars:>1000",
+      "limit": 8
+    },
+    {
+      "id": "automation",
+      "stack": "S2",
+      "query": "workflow automation integrations self hosted stars:>1000",
+      "limit": 8
+    },
+    {
+      "id": "browser-automation",
+      "stack": "S2",
+      "query": "browser automation Playwright AI agent stars:>500",
+      "limit": 8
+    },
+    {
+      "id": "monitoring",
+      "stack": "S2",
+      "query": "website change detection price monitoring open source stars:>500",
+      "limit": 8
+    },
+    {
+      "id": "writing-publishing",
+      "stack": "S3",
+      "query": "markdown novel writing publishing ebook stars:>100",
+      "limit": 8
+    },
+    {
+      "id": "document-extraction",
+      "stack": "S4",
+      "query": "document extraction PDF markdown OCR LLM stars:>500",
+      "limit": 8
+    },
+    {
+      "id": "research-knowledge",
+      "stack": "S4",
+      "query": "RAG knowledge base research assistant open source stars:>1000",
+      "limit": 8
+    },
+    {
+      "id": "mcp-agent-tools",
+      "stack": "S5",
+      "query": "MCP server agent tools model context protocol stars:>500",
+      "limit": 8
+    },
+    {
+      "id": "agent-observability",
+      "stack": "S5",
+      "query": "LLM observability tracing evaluation open source stars:>500",
+      "limit": 8
+    },
+    {
+      "id": "future-free-infra",
+      "stack": "S6",
+      "query": "developer tools free tier self hosted awesome stars:>1000",
+      "limit": 8
+    }
+  ]
+}
