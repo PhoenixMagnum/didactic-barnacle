@@ -17,6 +17,7 @@ Read:
 - [AGENTS.md](AGENTS.md) — agent roles and approval boundaries
 - [Operating System](docs/MONAKSHI_OPERATING_SYSTEM.md) — complete workstream architecture
 - [Source of Truth](docs/SOURCE_OF_TRUTH.md) — authority and context-hygiene rules
+- [Command Centre Canon](docs/COMMAND_CENTRE_CANON.md) — controlling XLSX import, source authority and decision conflict rules
 - [Workstream Map](docs/WORKSTREAMS.md) — public-safe launch map
 - [Instagram + WhatsApp Supplier Bridge](docs/SOCIAL_SUPPLIER_BRIDGE.md) — multichannel identity and evidence rules
 - [Evidence Ledger](docs/EVIDENCE_LEDGER.md) — provenance and conflict-preserving evidence
@@ -39,6 +40,9 @@ Monakshi borrows selected patterns rather than cloning the full repository:
 
 ## What the app already does
 
+- controlling Launch Command Centre XLSX importer
+- source registry with authority ranks and stale-source warnings
+- decision canon that preserves conflicts and resolves the controlling value by authority
 - launch command centre with explicit gates and blockers
 - supplier scoring built around Monakshi's actual operating model
 - one supplier identity across Instagram, WhatsApp, email, phone and website aliases
