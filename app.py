@@ -5,9 +5,12 @@ import json
 
 import streamlit as st
 
+from monakshi_os.channels import add_alias, add_channel, channel_is_stale, supplier_aliases, supplier_channels
 from monakshi_os.db import connect, init_db, rows
+from monakshi_os.evidence import entity_facts, search_evidence, upsert_evidence
 from monakshi_os.muse import product_caption, product_description
 from monakshi_os.scoring import launch_gate, supplier_score, unit_economics
+from monakshi_os.rehearsal import evaluate_launch, render_markdown
 from monakshi_os.scout import add_watch, check_watch
 from monakshi_os.seed import seed_demo
 from monakshi_os.state_io import export_state, import_state
@@ -19,7 +22,7 @@ init_db()
 st.title("House of Monakshi OS")
 st.caption("Operations brain for sourcing, qualification, launch gates and brand consistency. Keep confidential data local/private.")
 
-tabs = st.tabs(["Command Centre", "Suppliers", "Products", "Vault", "Watchtower", "Muse"])
+tabs = st.tabs(["Command Centre", "Suppliers", "Channels", "Products", "Evidence", "Vault", "Watchtower", "Muse"])
 
 with tabs[0]:
     tasks = rows("SELECT * FROM launch_tasks ORDER BY area, id")
@@ -35,6 +38,21 @@ with tabs[0]:
     c4.metric("With blocker", blocked)
     st.progress(done / total if total else 0)
 
+    rehearsal = evaluate_launch()
+    if rehearsal["decision"] == "GO":
+        st.success("Launch firewall: GO")
+    else:
+        st.error(f"Launch firewall: NO-GO · {len(rehearsal['blocking_gates'])} hard gate(s) still open")
+        with st.expander("Show hard launch blockers"):
+            for gate in rehearsal["blocking_gates"]:
+                st.write(f"**{gate['key']} · {gate['label']}** — {gate['detail']}")
+    st.download_button(
+        "Download launch rehearsal report",
+        data=render_markdown(rehearsal),
+        file_name="house_of_monakshi_launch_rehearsal.md",
+        mime="text/markdown",
+    )
+
     with st.expander("Private state import / export", expanded=False):
         st.caption("Imports write only to your local SQLite database. Do not commit the generated database or private JSON to this public repository.")
         state_file = st.file_uploader("Import Monakshi private state JSON", type=["json"], key="private_state_json")
@@ -42,7 +60,7 @@ with tabs[0]:
             payload = json.loads(state_file.getvalue().decode("utf-8"))
             counts = import_state(payload)
             st.success(
-                f"Imported {counts['launch_tasks']} tasks, {counts['suppliers']} suppliers and {counts['products']} products."
+                f"Imported {counts['launch_tasks']} tasks, {counts['suppliers']} suppliers, {counts.get('channels', 0)} channels, {counts.get('aliases', 0)} aliases, {counts['products']} products and {counts.get('evidence', 0)} evidence records."
             )
             st.rerun()
         snapshot = json.dumps(export_state(), ensure_ascii=False, indent=2, default=str)
@@ -141,6 +159,77 @@ with tabs[1]:
             )
 
 with tabs[2]:
+    st.subheader("Supplier channels")
+    st.caption("One supplier can have Instagram, WhatsApp, email, phone and website routes. Channels are evidence routes, not separate supplier identities.")
+
+    channel_suppliers = rows("SELECT id, name FROM suppliers ORDER BY name")
+    channel_supplier_map = {s["name"]: s["id"] for s in channel_suppliers}
+
+    if channel_supplier_map:
+        with st.expander("Add or update a channel", expanded=False):
+            supplier_name = st.selectbox("Supplier", list(channel_supplier_map), key="channel_supplier")
+            channel_type = st.selectbox(
+                "Channel type",
+                ["instagram", "whatsapp", "email", "phone", "website", "other"],
+                key="channel_type",
+            )
+            handle = st.text_input("Handle / number / address", key="channel_handle")
+            profile_url = st.text_input("Profile / source URL", key="channel_url")
+            channel_status = st.selectbox("Channel status", ["active", "unverified", "inactive"], key="channel_status")
+            last_verified = st.text_input("Last verified", placeholder="YYYY-MM-DD", key="channel_verified")
+            primary = st.checkbox("Primary contact route", key="channel_primary")
+            channel_notes = st.text_area("Channel notes", key="channel_notes")
+            if st.button("Save channel"):
+                add_channel(
+                    supplier_id=channel_supplier_map[supplier_name],
+                    channel_type=channel_type,
+                    handle=handle,
+                    profile_url=profile_url,
+                    status=channel_status,
+                    is_primary=primary,
+                    last_verified_at=last_verified,
+                    notes=channel_notes,
+                )
+                st.rerun()
+
+        with st.expander("Add supplier alias", expanded=False):
+            alias_supplier = st.selectbox("Canonical supplier", list(channel_supplier_map), key="alias_supplier")
+            alias_type = st.selectbox(
+                "Alias type",
+                ["name", "instagram", "whatsapp", "email", "catalogue", "other"],
+                key="alias_type",
+            )
+            alias = st.text_input("Alias / handle / number", key="alias_value")
+            if st.button("Save alias") and alias.strip():
+                add_alias(channel_supplier_map[alias_supplier], alias, alias_type)
+                st.rerun()
+    else:
+        st.info("Add suppliers before adding channels.")
+
+    channel_rows = supplier_channels()
+    if channel_rows:
+        for c in channel_rows:
+            with st.container(border=True):
+                cols = st.columns([2.6, 1.3, 2.2, 1.2])
+                cols[0].markdown(f"**{c['supplier_name']}**")
+                cols[1].write(c["channel_type"].title())
+                cols[2].write(c["handle"] or c["profile_url"] or "Route recorded")
+                freshness = "RE-VERIFY" if channel_is_stale(c.get("last_verified_at")) else "CURRENT"
+                cols[3].write(freshness)
+                bits = [c.get("status"), "primary" if c.get("is_primary") else "", c.get("last_verified_at")]
+                st.caption(" · ".join(str(x) for x in bits if x))
+                if c.get("notes"):
+                    st.write(c["notes"])
+    else:
+        st.info("No channel routes in the local private state yet.")
+
+    alias_rows = supplier_aliases()
+    if alias_rows:
+        with st.expander("Alias map"):
+            for alias_row in alias_rows:
+                st.write(f"{alias_row['alias']} ({alias_row['alias_type']}) → {alias_row['supplier_name']}")
+
+with tabs[3]:
     st.subheader("Product qualification")
 
     suppliers = rows("SELECT id, name FROM suppliers ORDER BY name")
@@ -219,7 +308,86 @@ with tabs[2]:
             else:
                 st.warning("Not launch ready: " + ", ".join(missing))
 
-with tabs[3]:
+
+with tabs[4]:
+    st.subheader("Evidence ledger")
+    st.caption("Structured provenance for supplier, lab, website and operational claims. Keep raw private messages outside Git.")
+
+    evidence_suppliers = [s["name"] for s in rows("SELECT name FROM suppliers ORDER BY name")]
+    if evidence_suppliers:
+        with st.expander("Capture Instagram / WhatsApp / other evidence", expanded=False):
+            ev_supplier = st.selectbox("Supplier", evidence_suppliers, key="ev_supplier")
+            ev_source = st.selectbox(
+                "Source",
+                ["instagram", "whatsapp", "email", "catalogue", "website", "phone", "inspection", "other"],
+                key="ev_source",
+            )
+            ev_when = st.text_input("Message / evidence date", placeholder="YYYY-MM-DD or ISO timestamp", key="ev_when")
+            ev_subject = st.text_input("Short label", placeholder="MOQ / blind fulfilment confirmation", key="ev_subject")
+            ev_summary = st.text_area("What the supplier actually confirmed", key="ev_summary")
+            ev_facts = st.text_area(
+                "Structured facts JSON (optional)",
+                placeholder='{"moq_per_design": 10, "blind_shipping": true}',
+                key="ev_facts",
+            )
+            ev_impact = st.text_area("Decision impact / next action", key="ev_impact")
+            ev_confidence = st.selectbox("Confidence", ["direct", "derived", "unverified"], key="ev_confidence")
+            ev_ref = st.text_input("Private source reference", placeholder="Drive file, screenshot name, thread/date", key="ev_ref")
+            if st.button("Save evidence") and ev_summary.strip():
+                try:
+                    parsed_facts = json.loads(ev_facts) if ev_facts.strip() else {}
+                    if not isinstance(parsed_facts, dict):
+                        raise ValueError("Facts must be a JSON object.")
+                except (json.JSONDecodeError, ValueError) as exc:
+                    st.error(f"Invalid facts JSON: {exc}")
+                else:
+                    upsert_evidence(
+                        {
+                            "entity_type": "supplier",
+                            "entity_name": ev_supplier,
+                            "source_type": ev_source,
+                            "source_label": ev_subject,
+                            "source_ref": ev_ref,
+                            "occurred_at": ev_when,
+                            "subject": ev_subject,
+                            "summary": ev_summary,
+                            "facts": parsed_facts,
+                            "decision_impact": ev_impact,
+                            "confidence": ev_confidence,
+                        }
+                    )
+                    st.rerun()
+
+    eq = st.text_input("Search evidence", key="evidence_search")
+    supplier_names = [s["name"] for s in rows("SELECT name FROM suppliers ORDER BY name")]
+    entity_filter = st.selectbox("Filter entity", ["All"] + supplier_names, key="evidence_entity")
+    evidence_rows = search_evidence(
+        query=eq,
+        entity_name="" if entity_filter == "All" else entity_filter,
+    )
+    st.metric("Evidence records", len(evidence_rows))
+    for ev in evidence_rows:
+        with st.container(border=True):
+            st.markdown(f"**{ev['entity_name']}** · {ev['source_type']} · {ev['confidence']}")
+            if ev.get("subject"):
+                st.caption(ev["subject"])
+            st.write(ev["summary"])
+            facts = ev.get("facts", {})
+            if facts:
+                st.json(facts)
+            if ev.get("decision_impact"):
+                st.info("Decision impact: " + ev["decision_impact"])
+            source_bits = [x for x in [ev.get("source_label"), ev.get("occurred_at")] if x]
+            if source_bits:
+                st.caption(" · ".join(source_bits))
+
+    if entity_filter != "All":
+        facts = entity_facts(entity_filter)
+        if facts:
+            with st.expander("Consolidated fact history"):
+                st.json(facts)
+
+with tabs[5]:
     st.subheader("Supplier & product document vault")
     upload = st.file_uploader("Add a PDF, TXT, MD or CSV", type=["pdf", "txt", "md", "csv"])
     if upload and st.button("Ingest document"):
@@ -238,7 +406,7 @@ with tabs[3]:
             st.markdown(f"**{r['citation']}**")
             st.write(r["content"][:900])
 
-with tabs[4]:
+with tabs[6]:
     st.subheader("Supplier / competitor page watchtower")
     st.caption("Use only on pages you are allowed to access. This v1 checks public page text for change.")
     label = st.text_input("Watch label")
@@ -260,7 +428,7 @@ with tabs[4]:
             except Exception as exc:
                 st.error(str(exc))
 
-with tabs[5]:
+with tabs[7]:
     st.subheader("Monakshi Muse")
     name = st.text_input("Product name", key="muse_name")
     form = st.text_input("Form / inspiration", placeholder="lotus pond urli", key="muse_form")

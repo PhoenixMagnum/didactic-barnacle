@@ -30,6 +30,38 @@ CREATE TABLE IF NOT EXISTS suppliers (
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS supplier_channels (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    supplier_id INTEGER NOT NULL,
+    channel_type TEXT NOT NULL,
+    handle TEXT DEFAULT '',
+    profile_url TEXT DEFAULT '',
+    status TEXT DEFAULT 'active',
+    is_primary INTEGER DEFAULT 0,
+    last_verified_at TEXT DEFAULT '',
+    notes TEXT DEFAULT '',
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE CASCADE,
+    UNIQUE(supplier_id, channel_type, handle)
+);
+
+CREATE INDEX IF NOT EXISTS idx_supplier_channels_supplier
+ON supplier_channels(supplier_id);
+
+CREATE TABLE IF NOT EXISTS supplier_aliases (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    supplier_id INTEGER NOT NULL,
+    alias TEXT NOT NULL,
+    alias_type TEXT DEFAULT 'name',
+    normalized_alias TEXT NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE CASCADE,
+    UNIQUE(alias_type, normalized_alias)
+);
+
+CREATE INDEX IF NOT EXISTS idx_supplier_aliases_supplier
+ON supplier_aliases(supplier_id);
+
 CREATE TABLE IF NOT EXISTS products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     supplier_id INTEGER,
@@ -81,6 +113,26 @@ CREATE TABLE IF NOT EXISTS watch_events (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (watch_id) REFERENCES watches(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS evidence_records (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    external_id TEXT UNIQUE,
+    entity_type TEXT NOT NULL,
+    entity_name TEXT NOT NULL,
+    source_type TEXT NOT NULL,
+    source_label TEXT DEFAULT '',
+    source_ref TEXT DEFAULT '',
+    occurred_at TEXT DEFAULT '',
+    subject TEXT DEFAULT '',
+    summary TEXT NOT NULL,
+    facts_json TEXT DEFAULT '{}',
+    decision_impact TEXT DEFAULT '',
+    confidence TEXT DEFAULT 'direct',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_evidence_entity
+ON evidence_records(entity_type, entity_name);
 
 CREATE TABLE IF NOT EXISTS launch_tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

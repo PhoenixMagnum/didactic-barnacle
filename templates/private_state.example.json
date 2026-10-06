@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "sources": [
     {
       "source_id": "command-centre-current",
@@ -25,7 +25,7 @@
   "suppliers": [
     {
       "name": "PRIVATE SUPPLIER NAME",
-      "contact_channel": "email",
+      "contact_channel": "instagram -> whatsapp",
       "status": "sampling",
       "blind_shipping": true,
       "private_label": true,
@@ -38,6 +38,59 @@
       "commercial_score": 0,
       "reliability_score": 0,
       "notes": "Private evidence only."
+    }
+  ],
+  "supplier_channels": [
+    {
+      "supplier_name": "PRIVATE SUPPLIER NAME",
+      "channel_type": "instagram",
+      "handle": "@private_supplier",
+      "profile_url": "",
+      "status": "active",
+      "is_primary": false,
+      "last_verified_at": "2026-10-06",
+      "notes": "Discovery / DM route."
+    },
+    {
+      "supplier_name": "PRIVATE SUPPLIER NAME",
+      "channel_type": "whatsapp",
+      "handle": "PRIVATE NUMBER",
+      "profile_url": "",
+      "status": "active",
+      "is_primary": true,
+      "last_verified_at": "2026-10-06",
+      "notes": "Commercial follow-up route."
+    }
+  ],
+  "supplier_aliases": [
+    {
+      "supplier_name": "PRIVATE SUPPLIER NAME",
+      "alias_type": "instagram",
+      "alias": "@private_supplier"
+    },
+    {
+      "supplier_name": "PRIVATE SUPPLIER NAME",
+      "alias_type": "whatsapp",
+      "alias": "PRIVATE NUMBER"
+    }
+  ],
+  "evidence": [
+    {
+      "external_id": "private:message:001",
+      "entity_type": "supplier",
+      "entity_name": "PRIVATE SUPPLIER NAME",
+      "source_type": "whatsapp",
+      "source_label": "MOQ confirmation",
+      "source_ref": "PRIVATE_DRIVE_OR_THREAD_REFERENCE",
+      "occurred_at": "2026-10-06",
+      "subject": "MOQ / fulfilment",
+      "summary": "Supplier directly confirmed the current operating term.",
+      "facts": {
+        "moq_per_design": 10,
+        "blind_shipping": true
+      },
+      "decision_impact": "Proceed to sample quote; physical and blind-ship tests still required.",
+      "confidence": "direct"
     }
   ],
   "products": [
