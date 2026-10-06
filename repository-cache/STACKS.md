@@ -8,7 +8,7 @@
 - `f/prompts.chat`
 - `mattpocock/skills`
 - `mcp-finder/awesome-mcp-servers`
-- `free-for-dev/free-for-dev`
+- `ripienaar/free-for-dev`
 
 **Rule:** Discovery feeds the cache. It does not automatically change production architecture.
 
@@ -93,7 +93,7 @@
 - `sindresorhus/awesome`
 - `awesome-selfhosted/awesome-selfhosted`
 - `public-apis/public-apis`
-- `free-for-dev/free-for-dev`
+- `ripienaar/free-for-dev`
 - `EbookFoundation/free-programming-books`
 - `metabase/metabase`
 - `nocodb/nocodb`
