@@ -1,5 +1,5 @@
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "sources": [
     {
       "source_id": "command-centre-current",
@@ -16,7 +16,8 @@
     {
       "decision_id": "operating-model",
       "domain": "operations",
-      "decision": "Use low-inventory supplier-held or qualified blind D2C fulfilment.",
+      "decision_key": "operating_model",
+      "decision_value": "Use low-inventory supplier-held or qualified blind D2C fulfilment.",
       "status": "locked",
       "source_id": "command-centre-current",
       "effective_date": "2026-10-06"
@@ -91,6 +92,20 @@
       },
       "decision_impact": "Proceed to sample quote; physical and blind-ship tests still required.",
       "confidence": "direct"
+    }
+  ],
+  "ingestion_log": [
+    {
+      "external_id": "gmail:PRIVATE_MESSAGE_ID",
+      "source_system": "gmail",
+      "entity_name": "PRIVATE SUPPLIER NAME",
+      "artifact_type": "email",
+      "content_sha256": "HASH_ONLY",
+      "source_ref_sha256": "HASH_ONLY",
+      "redacted_label": "MOQ confirmation from [email]",
+      "occurred_at": "2026-10-06",
+      "status": "imported",
+      "notes": "No raw email body in the ingestion log."
     }
   ],
   "products": [

@@ -7,6 +7,7 @@ from typing import Any
 from .channels import import_channel_state, supplier_aliases, supplier_channels
 from .db import connect, init_db
 from .evidence import import_evidence, search_evidence
+from .ingestion import import_ingestion_log, ingestion_log
 from .source_canon import decision_canon, import_canon_state, source_registry
 
 STATUS_MAP = {
@@ -32,7 +33,7 @@ def load_payload(path: str | Path) -> dict[str, Any]:
 
 def import_state(payload: dict[str, Any], db_path="data/monakshi.db") -> dict[str, int]:
     init_db(db_path)
-    counts = {"sources": 0, "decisions": 0, "suppliers": 0, "products": 0, "launch_tasks": 0, "channels": 0, "aliases": 0, "evidence": 0}
+    counts = {"sources": 0, "decisions": 0, "suppliers": 0, "products": 0, "launch_tasks": 0, "channels": 0, "aliases": 0, "evidence": 0, "ingestions": 0}
 
     canon_counts = import_canon_state(
         payload.get("sources", []),
@@ -210,6 +211,7 @@ def import_state(payload: dict[str, Any], db_path="data/monakshi.db") -> dict[st
     )
     counts.update(channel_counts)
     counts["evidence"] = import_evidence(payload.get("evidence", []), db_path)
+    counts["ingestions"] = import_ingestion_log(payload.get("ingestion_log", []), db_path)
     return counts
 
 def export_state(db_path="data/monakshi.db") -> dict[str, Any]:
@@ -225,7 +227,7 @@ def export_state(db_path="data/monakshi.db") -> dict[str, Any]:
         ]
         tasks = [dict(r) for r in con.execute("SELECT * FROM launch_tasks ORDER BY id")]
     return {
-        "schema_version": 4,
+        "schema_version": 5,
         "sources": source_registry(db_path),
         "decisions": decision_canon(db_path),
         "suppliers": suppliers,
@@ -234,4 +236,5 @@ def export_state(db_path="data/monakshi.db") -> dict[str, Any]:
         "products": products,
         "launch_tasks": tasks,
         "evidence": search_evidence(db_path=db_path),
+        "ingestion_log": ingestion_log(db_path),
     }

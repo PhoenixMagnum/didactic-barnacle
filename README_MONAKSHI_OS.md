@@ -21,6 +21,7 @@ Read:
 - [Workstream Map](docs/WORKSTREAMS.md) — public-safe launch map
 - [Instagram + WhatsApp Supplier Bridge](docs/SOCIAL_SUPPLIER_BRIDGE.md) — multichannel identity and evidence rules
 - [Evidence Ledger](docs/EVIDENCE_LEDGER.md) — provenance and conflict-preserving evidence
+- [Private Gmail / Drive Ingestion](docs/PRIVATE_INGESTION.md) — explicit-source import, provenance, deduplication and redaction-safe logs
 - [Private State Example](templates/private_state.example.json) — structure for local/private operating state
 
 ## Patterns adapted from Arindam200/awesome-ai-apps
@@ -47,6 +48,7 @@ Monakshi borrows selected patterns rather than cloning the full repository:
 - supplier scoring built around Monakshi's actual operating model
 - one supplier identity across Instagram, WhatsApp, email, phone and website aliases
 - structured evidence ledger with dated claims and source references
+- duplicate-safe selected Gmail/Drive evidence ingestion with redaction-safe logs
 - stale-channel re-verification flags
 - product unit economics and hard launch-readiness gates
 - local document vault for supplier catalogues, terms and research
@@ -113,8 +115,7 @@ Python 3.10+ recommended.
 
 The next useful adapters are:
 - Command Centre spreadsheet -> private state importer
-- Gmail -> supplier interaction/evidence sync
-- Google Drive -> private document index
+- Gmail/Drive -> expand connector-assisted selection and evidence extraction
 - Wix -> storefront/order status sync
 - Metricool/Meta -> publishing state
 - payment provider -> reconciliation state
