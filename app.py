@@ -10,6 +10,7 @@ from monakshi_os.channels import add_alias, add_channel, channel_is_stale, suppl
 from monakshi_os.command_centre import import_command_centre
 from monakshi_os.db import connect, init_db, rows
 from monakshi_os.evidence import entity_facts, search_evidence, upsert_evidence
+from monakshi_os.ingestion import ingest_connector_records, ingestion_log
 from monakshi_os.muse import product_caption, product_description
 from monakshi_os.scoring import launch_gate, supplier_score, unit_economics
 from monakshi_os.rehearsal import evaluate_launch, render_markdown
@@ -89,7 +90,7 @@ with tabs[0]:
             payload = json.loads(state_file.getvalue().decode("utf-8"))
             counts = import_state(payload)
             st.success(
-                f"Imported {counts.get('sources', 0)} sources, {counts.get('decisions', 0)} decisions, {counts['launch_tasks']} tasks, {counts['suppliers']} suppliers, {counts.get('channels', 0)} channels, {counts.get('aliases', 0)} aliases, {counts['products']} products and {counts.get('evidence', 0)} evidence records."
+                f"Imported {counts.get('sources', 0)} sources, {counts.get('decisions', 0)} decisions, {counts['launch_tasks']} tasks, {counts['suppliers']} suppliers, {counts.get('channels', 0)} channels, {counts.get('aliases', 0)} aliases, {counts['products']} products, {counts.get('evidence', 0)} evidence records and {counts.get('ingestions', 0)} ingestion-log rows."
             )
             st.rerun()
         snapshot = json.dumps(export_state(), ensure_ascii=False, indent=2, default=str)
@@ -342,6 +343,33 @@ with tabs[4]:
     st.subheader("Evidence ledger")
     st.caption("Structured provenance for supplier, lab, website and operational claims. Keep raw private messages outside Git.")
 
+    with st.expander("Import selected Gmail / Drive evidence", expanded=False):
+        st.caption("Import only records you explicitly selected/exported. The adapter deduplicates by source ID and content hash, redacts the ingestion log, and can index selected text into the private vault.")
+        connector_file = st.file_uploader(
+            "Selected connector evidence JSON",
+            type=["json"],
+            key="connector_evidence_json",
+        )
+        if connector_file and st.button("Import selected connector evidence"):
+            try:
+                connector_payload = json.loads(connector_file.getvalue().decode("utf-8"))
+                connector_records = (
+                    connector_payload.get("records", [])
+                    if isinstance(connector_payload, dict)
+                    else connector_payload
+                )
+                if not isinstance(connector_records, list):
+                    raise ValueError("Expected a list of records or an object containing a records list.")
+                connector_result = ingest_connector_records(connector_records)
+            except (json.JSONDecodeError, ValueError) as exc:
+                st.error(f"Could not import connector evidence: {exc}")
+            else:
+                st.success(
+                    f"Selected {connector_result['selected']} · imported {connector_result['imported']} · "
+                    f"duplicates skipped {connector_result['duplicates']} · vault chunks {connector_result['vault_chunks']}."
+                )
+                st.rerun()
+
     evidence_suppliers = [s["name"] for s in rows("SELECT name FROM suppliers ORDER BY name")]
     if evidence_suppliers:
         with st.expander("Capture Instagram / WhatsApp / other evidence", expanded=False):
@@ -415,6 +443,17 @@ with tabs[4]:
         if facts:
             with st.expander("Consolidated fact history"):
                 st.json(facts)
+
+    logs = ingestion_log()
+    if logs:
+        with st.expander("Private ingestion log"):
+            st.caption("Metadata and hashes only. Raw connector bodies are not written into this log.")
+            for log in logs[:100]:
+                st.write(
+                    f"{log['source_system']} · {log['entity_name']} · {log['artifact_type']} · "
+                    f"{log['status']} · {log.get('redacted_label') or 'record'}"
+                )
+                st.caption(f"{log.get('occurred_at') or 'undated'} · {log['external_id']}")
 
 with tabs[5]:
     st.subheader("Supplier & product document vault")
