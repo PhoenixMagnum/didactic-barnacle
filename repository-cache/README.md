@@ -46,3 +46,26 @@ The refresh script **never auto-promotes or auto-installs** a repository. Human 
 - StoryVault canon remains authoritative and is not delegated to autonomous memory/RAG systems.
 - Discovery repos, awesome lists and agent frameworks are reference material until explicitly promoted.
 - Private supplier/customer/credential data never belongs in this public cache.
+
+
+## Just-in-time repository scouting
+
+The cache can now expand itself **without automatically installing anything**.
+
+- `needs.json` defines recurring capability searches for the seven stacks.
+- `scripts/scout.py` queries GitHub, removes repositories already in the cache, and scores candidates by maintenance freshness, adoption, license signal and search relevance.
+- `.github/workflows/repository-scout.yml` runs the scout every Wednesday and whenever the need definitions change.
+- The workflow also supports **ad-hoc searches**. Give it a GitHub search query plus a target stack and it regenerates `CANDIDATES.md`.
+
+### How this becomes useful from ChatGPT
+
+When a new capability is needed, use this sequence:
+
+1. Search the existing cache first.
+2. If the cache has a strong fit, use that repository as the reference/candidate.
+3. If the cache has a gap, run an ad-hoc GitHub search or add a durable capability query to `needs.json`.
+4. Review the top candidate for license, maintenance, security, dependency weight and overlap.
+5. Integrate the winner through a project-specific branch/PR.
+6. Add the winner to `repos.json` only after it earns a place.
+
+This gives us effectively unlimited GitHub reach while keeping production stacks small and legible.
