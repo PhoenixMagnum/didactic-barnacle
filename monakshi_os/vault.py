@@ -30,15 +30,18 @@ def chunk_text(text: str, size: int = 1100, overlap: int = 180) -> list[str]:
         start = max(start + 1, end - overlap)
     return chunks
 
-def ingest(path: Path, db_path="data/monakshi.db") -> int:
-    chunks = chunk_text(_read(path))
+def ingest_text(source_name: str, text: str, db_path="data/monakshi.db") -> int:
+    chunks = chunk_text(text)
     with connect(db_path) as con:
-        con.execute("DELETE FROM documents WHERE source_name = ?", (path.name,))
+        con.execute("DELETE FROM documents WHERE source_name = ?", (source_name,))
         con.executemany(
             "INSERT INTO documents(source_name, chunk_index, content) VALUES (?, ?, ?)",
-            [(path.name, i + 1, c) for i, c in enumerate(chunks)],
+            [(source_name, i + 1, c) for i, c in enumerate(chunks)],
         )
     return len(chunks)
+
+def ingest(path: Path, db_path="data/monakshi.db") -> int:
+    return ingest_text(path.name, _read(path), db_path)
 
 def search(query: str, limit: int = 8, db_path="data/monakshi.db") -> list[dict]:
     terms = [t.lower() for t in re.findall(r"[A-Za-z0-9₹%.-]+", query) if len(t) > 1]
