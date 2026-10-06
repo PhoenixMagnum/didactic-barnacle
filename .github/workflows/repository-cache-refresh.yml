@@ -1,0 +1,36 @@
+name: Refresh repository intelligence cache
+
+on:
+  schedule:
+    - cron: "23 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Refresh repository metadata
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python repository-cache/scripts/refresh.py
+
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- repository-cache/STATUS.md; then
+            echo "No repository metadata changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add repository-cache/STATUS.md
+          git commit -m "chore: refresh repository cache status"
+          git push
