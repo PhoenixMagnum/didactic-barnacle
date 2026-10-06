@@ -134,6 +134,45 @@ CREATE TABLE IF NOT EXISTS evidence_records (
 CREATE INDEX IF NOT EXISTS idx_evidence_entity
 ON evidence_records(entity_type, entity_name);
 
+CREATE TABLE IF NOT EXISTS source_registry (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_id TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    source_type TEXT DEFAULT 'other',
+    authority_rank INTEGER NOT NULL DEFAULT 8,
+    version TEXT DEFAULT '',
+    location TEXT DEFAULT '',
+    is_controlling INTEGER DEFAULT 0,
+    last_verified_at TEXT DEFAULT '',
+    freshness_days INTEGER DEFAULT 30,
+    status TEXT DEFAULT 'active',
+    notes TEXT DEFAULT '',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_source_registry_authority
+ON source_registry(authority_rank, is_controlling);
+
+CREATE TABLE IF NOT EXISTS decision_canon (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    decision_id TEXT NOT NULL UNIQUE,
+    domain TEXT DEFAULT 'general',
+    decision_key TEXT NOT NULL,
+    decision_value TEXT NOT NULL,
+    status TEXT DEFAULT 'working',
+    source_id TEXT,
+    effective_date TEXT DEFAULT '',
+    rationale TEXT DEFAULT '',
+    notes TEXT DEFAULT '',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (source_id) REFERENCES source_registry(source_id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_decision_canon_key
+ON decision_canon(decision_key, status);
+
 CREATE TABLE IF NOT EXISTS launch_tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     source_id TEXT,
