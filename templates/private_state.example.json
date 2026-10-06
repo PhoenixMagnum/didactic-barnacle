@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "sources": [
+    {
+      "source_id": "command-centre-current",
+      "name": "Current Launch Command Centre",
+      "source_type": "spreadsheet",
+      "authority_rank": 2,
+      "version": "current",
+      "location": "PRIVATE_DRIVE_OR_LOCAL",
+      "is_controlling": true,
+      "notes": "Do not commit confidential contents."
+    }
+  ],
+  "decisions": [
+    {
+      "decision_id": "operating-model",
+      "domain": "operations",
+      "decision": "Use low-inventory supplier-held or qualified blind D2C fulfilment.",
+      "status": "locked",
+      "source_id": "command-centre-current",
+      "effective_date": "2026-10-06"
+    }
+  ],
+  "suppliers": [
+    {
+      "name": "PRIVATE SUPPLIER NAME",
+      "contact_channel": "email",
+      "status": "sampling",
+      "blind_shipping": true,
+      "private_label": true,
+      "mixed_designs": true,
+      "low_moq": true,
+      "no_inventory_model": true,
+      "sample_available": true,
+      "quality_score": 0,
+      "aesthetic_score": 0,
+      "commercial_score": 0,
+      "reliability_score": 0,
+      "notes": "Private evidence only."
+    }
+  ],
+  "products": [
+    {
+      "supplier_name": "PRIVATE SUPPLIER NAME",
+      "name": "PRIVATE CANDIDATE SKU",
+      "category": "Urli",
+      "supplier_price": null,
+      "target_retail": null,
+      "shipping_cost": 0,
+      "packaging_cost": 0,
+      "payment_fee_pct": 2.0,
+      "sample_status": "not_requested",
+      "burn_test_pass": false,
+      "packaging_test_pass": false,
+      "photo_approved": false,
+      "specs_verified": false,
+      "launch_status": "candidate"
+    }
+  ],
+  "launch_tasks": [
+    {
+      "source_id": "TASK-001",
+      "area": "Quality",
+      "task": "Run physical sample inspection",
+      "status": "waiting",
+      "owner": "Founder",
+      "priority": "Critical",
+      "due_gate": "On sample arrival",
+      "dependency": "Sample delivery",
+      "next_action": "Use approved inspection scorecard",
+      "evidence": "",
+      "notes": ""
+    }
+  ]
+}
