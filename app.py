@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+from datetime import datetime, timezone
 import json
 
 import streamlit as st
 
 from monakshi_os.channels import add_alias, add_channel, channel_is_stale, supplier_aliases, supplier_channels
+from monakshi_os.command_centre import import_command_centre
 from monakshi_os.db import connect, init_db, rows
 from monakshi_os.evidence import entity_facts, search_evidence, upsert_evidence
 from monakshi_os.muse import product_caption, product_description
@@ -14,6 +16,15 @@ from monakshi_os.rehearsal import evaluate_launch, render_markdown
 from monakshi_os.scout import add_watch, check_watch
 from monakshi_os.seed import seed_demo
 from monakshi_os.state_io import export_state, import_state
+from monakshi_os.source_canon import (
+    decision_canon,
+    decision_conflicts,
+    resolve_current_decision,
+    source_is_stale,
+    source_registry,
+    upsert_decision,
+    upsert_source,
+)
 from monakshi_os.vault import ingest, search
 
 st.set_page_config(page_title="House of Monakshi OS", page_icon="🪔", layout="wide")
@@ -22,7 +33,7 @@ init_db()
 st.title("House of Monakshi OS")
 st.caption("Operations brain for sourcing, qualification, launch gates and brand consistency. Keep confidential data local/private.")
 
-tabs = st.tabs(["Command Centre", "Suppliers", "Channels", "Products", "Evidence", "Vault", "Watchtower", "Muse"])
+tabs = st.tabs(["Command Centre", "Suppliers", "Channels", "Products", "Evidence", "Vault", "Watchtower", "Muse", "Canon"])
 
 with tabs[0]:
     tasks = rows("SELECT * FROM launch_tasks ORDER BY area, id")
@@ -53,6 +64,24 @@ with tabs[0]:
         mime="text/markdown",
     )
 
+    with st.expander("Controlling Command Centre import", expanded=False):
+        st.caption("Imports the private controlling XLSX into local Monakshi OS state. The workbook itself is not committed to Git.")
+        command_file = st.file_uploader(
+            "Import current Launch Command Centre (.xlsx)",
+            type=["xlsx"],
+            key="command_centre_xlsx",
+        )
+        if command_file and st.button("Import controlling Command Centre"):
+            result = import_command_centre(
+                command_file.getvalue(),
+                filename=command_file.name,
+                source_location="PRIVATE_UPLOAD",
+            )
+            st.success(
+                f"Imported {result['tasks']} master tasks and {result['decisions']} controlling decisions from {result['version'] or command_file.name}."
+            )
+            st.rerun()
+
     with st.expander("Private state import / export", expanded=False):
         st.caption("Imports write only to your local SQLite database. Do not commit the generated database or private JSON to this public repository.")
         state_file = st.file_uploader("Import Monakshi private state JSON", type=["json"], key="private_state_json")
@@ -60,7 +89,7 @@ with tabs[0]:
             payload = json.loads(state_file.getvalue().decode("utf-8"))
             counts = import_state(payload)
             st.success(
-                f"Imported {counts['launch_tasks']} tasks, {counts['suppliers']} suppliers, {counts.get('channels', 0)} channels, {counts.get('aliases', 0)} aliases, {counts['products']} products and {counts.get('evidence', 0)} evidence records."
+                f"Imported {counts.get('sources', 0)} sources, {counts.get('decisions', 0)} decisions, {counts['launch_tasks']} tasks, {counts['suppliers']} suppliers, {counts.get('channels', 0)} channels, {counts.get('aliases', 0)} aliases, {counts['products']} products and {counts.get('evidence', 0)} evidence records."
             )
             st.rerun()
         snapshot = json.dumps(export_state(), ensure_ascii=False, indent=2, default=str)
@@ -437,3 +466,119 @@ with tabs[7]:
     if name and form:
         st.text_area("Caption", product_caption(name, form, fragrance, occasion), height=130)
         st.text_area("Product description", product_description(name, form, fragrance=fragrance), height=220)
+
+
+with tabs[8]:
+    st.subheader("Source & decision canon")
+    st.caption("This is the context firewall: current founder decisions outrank the Command Centre, which outranks operating documents, evidence, research and historical material.")
+
+    sources = source_registry()
+    decisions = decision_canon()
+    conflicts = decision_conflicts()
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Registered sources", len(sources))
+    c2.metric("Active decisions", sum(d["status"] in {"locked", "working"} for d in decisions))
+    c3.metric("Decision conflicts", len(conflicts))
+
+    with st.expander("Record founder decision", expanded=False):
+        domain = st.text_input("Domain", value="general", key="canon_domain")
+        decision_key = st.text_input("Decision key", placeholder="primary_gateway", key="canon_key")
+        decision_value = st.text_area("Decision", key="canon_value")
+        decision_status = st.selectbox("Status", ["locked", "working", "pending"], key="canon_status")
+        rationale = st.text_area("Rationale / context", key="canon_rationale")
+        supersede = st.checkbox(
+            "Explicitly supersede prior active decisions with this key",
+            value=False,
+            key="canon_supersede",
+        )
+        if st.button("Save founder decision") and decision_key.strip() and decision_value.strip():
+            now = datetime.now(timezone.utc).isoformat()
+            upsert_source(
+                {
+                    "source_id": "founder-current",
+                    "name": "Current explicit founder decisions",
+                    "source_type": "founder",
+                    "authority_rank": 1,
+                    "version": "current",
+                    "location": "Monakshi OS",
+                    "is_controlling": True,
+                    "last_verified_at": now,
+                    "freshness_days": 3650,
+                    "status": "active",
+                    "notes": "Explicit decisions entered by the founder.",
+                }
+            )
+            decision_id = f"founder:{decision_key.strip()}:{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+            upsert_decision(
+                {
+                    "decision_id": decision_id,
+                    "domain": domain.strip() or "general",
+                    "decision_key": decision_key.strip(),
+                    "decision_value": decision_value.strip(),
+                    "status": decision_status,
+                    "source_id": "founder-current",
+                    "effective_date": now,
+                    "rationale": rationale.strip(),
+                },
+                supersede_prior=supersede,
+            )
+            st.rerun()
+
+    if conflicts:
+        st.error(f"{len(conflicts)} active decision conflict(s) need review.")
+        for conflict in conflicts:
+            with st.container(border=True):
+                st.markdown(f"**{conflict['decision_key']}**")
+                current = conflict.get("current")
+                if current:
+                    st.write(f"Current by authority: {current['decision_value']}")
+                    st.caption(f"{current.get('source_name') or current.get('source_id')} · rank {current.get('authority_rank')}")
+                for record in conflict["records"]:
+                    st.write(
+                        f"- {record['decision_value']} · {record['status']} · "
+                        f"{record.get('source_name') or record.get('source_id') or 'no source'}"
+                    )
+    else:
+        st.success("No active decision contradictions detected.")
+
+    st.markdown("### Source registry")
+    if not sources:
+        st.info("No sources registered yet. Import the controlling Command Centre or private state.")
+    for source in sources:
+        with st.container(border=True):
+            cols = st.columns([3, 1, 1, 1.4])
+            cols[0].markdown(f"**{source['name']}**")
+            cols[1].write(f"Rank {source['authority_rank']}")
+            cols[2].write(source.get("version") or "—")
+            cols[3].write("STALE" if source_is_stale(source) else "CURRENT")
+            st.caption(
+                " · ".join(
+                    str(x) for x in [
+                        source.get("source_type"),
+                        "controlling" if source.get("is_controlling") else "",
+                        source.get("last_verified_at"),
+                        source.get("status"),
+                    ] if x
+                )
+            )
+            if source.get("notes"):
+                st.write(source["notes"])
+
+    st.markdown("### Decision canon")
+    if not decisions:
+        st.info("No decisions recorded yet.")
+    for decision in decisions:
+        with st.container(border=True):
+            current = resolve_current_decision(decision["decision_key"])
+            is_current = bool(current and current["decision_id"] == decision["decision_id"])
+            label = "CURRENT" if is_current else decision["status"].upper()
+            st.markdown(f"**{decision['decision_key']}** · {label}")
+            st.write(decision["decision_value"])
+            st.caption(
+                f"{decision.get('domain') or 'general'} · "
+                f"{decision.get('source_name') or decision.get('source_id') or 'no source'} · "
+                f"effective {decision.get('effective_date') or 'undated'}"
+            )
+            if decision.get("rationale"):
+                st.write(decision["rationale"])

@@ -13,7 +13,28 @@ def test_status_normalization():
 def test_private_state_import_is_idempotent(tmp_path: Path):
     db = tmp_path / "monakshi.db"
     payload = {
-        "schema_version": 3,
+        "schema_version": 4,
+        "sources": [
+            {
+                "source_id": "command-centre-current",
+                "name": "Current Launch Command Centre",
+                "source_type": "spreadsheet",
+                "authority_rank": 2,
+                "version": "v13",
+                "last_verified_at": "2026-10-06",
+                "is_controlling": True
+            }
+        ],
+        "decisions": [
+            {
+                "decision_id": "cc:gateway",
+                "domain": "commerce",
+                "decision_key": "primary_gateway",
+                "decision_value": "Razorpay",
+                "status": "working",
+                "source_id": "command-centre-current"
+            }
+        ],
         "suppliers": [
             {
                 "name": "Private Demo Supplier",
@@ -67,7 +88,7 @@ def test_private_state_import_is_idempotent(tmp_path: Path):
     first = import_state(payload, db)
     second = import_state(payload, db)
 
-    assert first == {"suppliers": 1, "products": 1, "launch_tasks": 1, "channels": 1, "aliases": 1, "evidence": 0}
+    assert first == {"sources": 1, "decisions": 1, "suppliers": 1, "products": 1, "launch_tasks": 1, "channels": 1, "aliases": 1, "evidence": 0}
     assert second == first
     assert len(rows("SELECT * FROM suppliers WHERE name=?", ("Private Demo Supplier",), db)) == 1
     assert len(rows("SELECT * FROM products WHERE name=?", ("Lotus Test",), db)) == 1
