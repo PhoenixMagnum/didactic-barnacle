@@ -1,0 +1,58 @@
+name: Scout useful repositories
+
+on:
+  workflow_dispatch:
+    inputs:
+      query:
+        description: "Optional ad-hoc GitHub repository search query"
+        required: false
+        type: string
+      stack:
+        description: "Target stack for an ad-hoc query (S0-S6)"
+        required: false
+        default: "S6"
+        type: string
+  schedule:
+    - cron: "41 4 * * 3"
+  push:
+    branches: [main]
+    paths:
+      - "repository-cache/needs.json"
+      - "repository-cache/scripts/scout.py"
+      - ".github/workflows/repository-scout.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: repository-scout
+  cancel-in-progress: true
+
+jobs:
+  scout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Scout GitHub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SCOUT_QUERY: ${{ github.event.inputs.query || '' }}
+          SCOUT_STACK: ${{ github.event.inputs.stack || 'S6' }}
+        run: python repository-cache/scripts/scout.py
+
+      - name: Commit candidate queue
+        run: |
+          if git diff --quiet -- repository-cache/CANDIDATES.md; then
+            echo "No candidate changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add repository-cache/CANDIDATES.md
+          git commit -m "chore: refresh repository scout candidates"
+          git push
